@@ -1,5 +1,5 @@
 ![Windows](https://img.shields.io/badge/OS-Windows-blue)
-![Disk Space](https://img.shields.io/badge/Disk%20Space-40GB-brightgreen)
+![Disk Space](https://img.shields.io/badge/Disk%20Space-50GB-brightgreen)
 
 ```
  █████╗ ██╗   ██╗███╗   ███╗
