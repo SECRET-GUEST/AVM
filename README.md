@@ -1,13 +1,12 @@
-# 🚀 AVM - Auto Video Maker
+# AVM - Auto Video Maker
 
-## 📌 Introduction
+# 📝 Description
 
-AVM (Auto Video Maker) est un logiciel innovant fonctionnant sous Windows qui exploite la technologie de Voice Cloning et une base de données d'images Google pour générer automatiquement du contenu multimédia. 
+AVM (Auto Video Maker) est un logiciel innovant, en cours de developpement, fonctionnant sous Windows , exploitant la technologie de l'IA ( Voice Cloning ) et une base de données d'images Google pour générer automatiquement du contenu multimédia, automatisant ainsi le processus de génération de vidéos.
 
-### 📝 Description
 Le projet, en cours de développement et actuellement en phase pré-alpha, est sous licence GPL-3.0. Il utilise l'invite de commande comme interface utilisateur. Le logiciel AVM (Auto Video Maker) a pour principal objectif de faciliter la création de contenu multimédia. 
 
-Grâce à la puissance de l'IA, il automatise le processus complexe de génération de vidéos. Il crée des scènes, génère des voix à partir des textes contenus dans le fichier `scene.json`, et assemble les vidéos de manière presque autonome, nécessitant une intervention minimale de l'utilisateur. Cette innovation vise à révolutionner la manière dont les vidéos sont créées, en rendant le processus plus rapide et plus efficace.
+AVM génère des voix à partir des textes contenus dans le fichier `scene.json`, et assemble les vidéos de manière autonome, nécessitant une intervention minimale de l'utilisateur. Cette innovation vise à révolutionner la manière dont les "vidéos" sont créées, en rendant le processus plus rapide et plus efficace.
 
 ## 🔧 Installation et Configuration
 
@@ -26,13 +25,10 @@ Grâce à la puissance de l'IA, il automatise le processus complexe de générat
 
 Pour utiliser l'AVM, suivez les étapes ci-dessous :
 
-1. **Préparation des Assets** : Préparez manuellement les animations de personnages et les templates de scène.
+1. **Préparation des Assets** : Préparez manuellement les animations de personnages et les templates de scène. (en cours de developpement)
 2. **Génération de Scène** : Utilisez le script pour générer une scène à partir des assets préparés.
-3. **Lancement du Logiciel** : Pour lancer le logiciel, cliquez soit sur le raccourci créé sur le bureau lors de l'installation, soit sur `shortcut.bat`.
+3. **Lancement du Logiciel** : Pour lancer le logiciel, cliquez soit sur le raccourci créé sur le bureau après l'installation, soit sur `shortcut.bat` ( vous pouvez faire un raccourcis au besoin, mais ne déplacez pas le fichier ).
 
-## 📜 Licence
-
-Ce projet est distribué sous la licence GPL-3.0. Voir le fichier `LICENSE` pour plus de détails.
 
 <!--
 ## 🤝 Contribution
@@ -54,3 +50,7 @@ Le projet est actuellement en phase de développement pré-alpha. Nous accueillo
 
 Merci de soutenir et de contribuer à ce projet en développement.
 -->
+
+## 📜 Licence
+
+Ce projet est distribué sous la licence GPL-3.0. Voir le fichier [**LICENSE**](https://github.com/SECRET-GUEST/AVM/blob/main/LICENSE) pour plus de détails.
