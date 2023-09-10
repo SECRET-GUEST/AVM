@@ -5,7 +5,9 @@
 AVM (Auto Video Maker) est un logiciel innovant fonctionnant sous Windows qui exploite la technologie de Voice Cloning et une base de données d'images Google pour générer automatiquement du contenu multimédia. 
 
 ### 📝 Description
-Le projet, encore en phase pré-alpha, est sous licence GPL-3.0 et utilise l'invite de commande comme interface utilisateur. Le but principal du logiciel est de générer des vidéos de manière quasi-automatique et incontrolée grâce à la puissance de l'IA. Le processus automatisé englobe la génération de scènes, la synchronisation de voix et la création de vidéos, offrant ainsi une expérience utilisateur simplifiée.
+Le projet, en cours de développement et actuellement en phase pré-alpha, est sous licence GPL-3.0. Il utilise l'invite de commande comme interface utilisateur. Le logiciel AVM (Auto Video Maker) a pour principal objectif de faciliter la création de contenu multimédia. 
+
+Grâce à la puissance de l'IA, il automatise le processus complexe de génération de vidéos. Il crée des scènes, génère des voix à partir des textes contenus dans le fichier `scene.json`, et assemble les vidéos de manière presque autonome, nécessitant une intervention minimale de l'utilisateur. Cette innovation vise à révolutionner la manière dont les vidéos sont créées, en rendant le processus plus rapide et plus efficace.
 
 ## 🔧 Installation et Configuration
 
