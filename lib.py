@@ -386,22 +386,30 @@ class installer:
             # Créer le dossier RVC s'il n'existe pas
             if not os.path.exists(self.rvc_directory_path):
                 os.makedirs(self.rvc_directory_path)
+            
             with zipfile.ZipFile(self.rvc_archive_path, 'r') as zip_ref:
                 zip_ref.extractall(self.rvc_directory_path)
-            self.spinner.loading_stop()
-            self.translate.print_message("L'archive RVC a bien été extraite.", progressive_display=True)
-
+        
+                # Vérification de l'extraction réussie
+                extracted_files = os.listdir(self.rvc_directory_path)
+                zip_files = zip_ref.namelist()
+                
+                if all(file in extracted_files for file in zip_files):
+                    self.spinner.loading_stop()
+                    self.translate.print_message("L'archive RVC a bien été extraite.", progressive_display=True)
+                    
+                    # Suppression du fichier zip après une extraction réussie
+                    os.remove(self.rvc_archive_path)
+                else:
+                    raise Exception("L'extraction des fichiers a échoué.")
+        
         except Exception as e:
             self.spinner.loading_stop()
             self.error_message = f"Erreur : {e} L'extraction du fichier a été interrompue"
             self.translate.print_message(self.error_message, progressive_display=True)
             self.log_error("Extraction Command", -1, None, self.error_message)
             return None
-
-        else:
-            # Suppression du fichier zip après une extraction réussie
-            os.remove(self.rvc_archive_path)
-
+        
 
 
 
