@@ -65,4 +65,4 @@ Merci de soutenir et de contribuer à ce projet en développement.
 
 ## 📜 Licence
 
-Ce projet est distribué sous la licence GPL-3.0. Voir le fichier [**LICENSE**](https://github.com/SECRET-GUEST/AVM/blob/main/LICENSE) pour plus de détails.
+Ce projet est distribué sous la licence AGPL-3.0. Voir le fichier [**LICENSE**](https://github.com/SECRET-GUEST/AVM/blob/main/LICENSE) pour plus de détails.
