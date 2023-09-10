@@ -287,8 +287,9 @@ class installer:
             #os.system("python setup.py install")
             
             # Installation du sous-package à partir de tortoise-tts/tortoise
-            os.chdir(os.path.join(tortoise_folder, "tortoise"))
-            os.system("pip install -e .")
+            # os.chdir(os.path.join(tortoise_folder, "tortoise"))
+            # os.system("pip install -e .")
+            
         else:
             self.spinner.loading_stop()
             self.translate.print_message("Le dossier tortoise-tts existe déjà, téléchargement non nécessaire.", progressive_display=True)
