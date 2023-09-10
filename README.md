@@ -11,8 +11,9 @@ Grâce à la puissance de l'IA, il automatise le processus complexe de générat
 
 ## 🔧 Installation et Configuration
 
-1. **Installation du Projet** : Cliquez sur `LANCEUR.bat` pour installer le projet. Cela configurera également l'environnement virtuel et installera les dépendances nécessaires via `lib.py`.
-2. **Mise à jour des Dépendances** : Pour mettre à jour les dépendances après l'installation, cliquez de nouveau sur `LANCEUR.bat`.
+**Installation du Projet** : Cliquez sur `LANCEUR.bat` pour installer le projet. Cela configurera également l'environnement virtuel et installera les dépendances nécessaires via `lib.py`.
+
+**Mise à jour des Dépendances** : Pour mettre à jour les dépendances après l'installation, cliquez simplement à nouveau sur `LANCEUR.bat`.
 
 ## 📂 Structure du Projet
 
@@ -33,9 +34,11 @@ Pour utiliser l'AVM, suivez les étapes ci-dessous :
 
 Ce projet est distribué sous la licence GPL-3.0. Voir le fichier `LICENSE` pour plus de détails.
 
+<!--
 ## 🤝 Contribution
 
 Le projet est actuellement en phase de développement pré-alpha. Nous accueillons volontiers les contributions pour améliorer le projet. N'hésitez pas à ouvrir des issues ou à soumettre des pull requests.
+-->
 
 ## 📚 Ressources Externes
 
@@ -46,7 +49,8 @@ Le projet est actuellement en phase de développement pré-alpha. Nous accueillo
 | Roberts Slisans (Liaison des éléments) | [GitHub](https://github.com/rsxdalv/tts-generation-webui)   |
 | Base de données d'images Google | [Site Web](https://storage.googleapis.com/openimages/web/download_v7.html) |
 
+<!--
 ## 🙏 Remerciements
 
 Merci de soutenir et de contribuer à ce projet en développement.
-
+-->
