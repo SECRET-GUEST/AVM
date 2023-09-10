@@ -23,19 +23,21 @@ class translate:
     def colorize_words(self, message, word_color_dict):
         words = message.split()
         new_words = []
-        default_color = "\033[92m"  # Couleur verte par défaut
+        default_color = "\033[92m"  # Couleur verte par défaut  
 
         for word in words:
-            clean_word = re.sub(r'\W+', '', word)  # Enlever la ponctuation et convertir en minuscules
+            clean_word = re.sub(r'\W+', '', word)  # Enlever la ponctuation
+            clean_word_lower = clean_word.lower()
             if re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', word):
                 new_words.append(f"\033[93m{word}{default_color}")  # Coloriser les URLs en jaune puis revenir à la couleur verte
             elif re.match(r'[a-zA-Z]:\\[^\0*:?<>|]+', word):
                 new_words.append(f"\033[93m{word}{default_color}")  
-            elif clean_word.lower() in word_color_dict:
-                new_words.append(word.replace(clean_word, f"\033[{word_color_dict[clean_word]}m{clean_word}{default_color}"))  
+            elif clean_word_lower in word_color_dict:
+                new_words.append(word.replace(clean_word, f"\033[{word_color_dict[clean_word_lower]}m{clean_word}{default_color}"))  
             else:
                 new_words.append(word)
-        return ' '.join(new_words)
+        return ' '.join(new_words)  
+
 
 
 # Traduit UNIQUEMENT les mots de groupes de mots
