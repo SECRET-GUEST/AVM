@@ -281,7 +281,7 @@ class installer:
         if not os.path.exists(tortoise_folder):
             os.makedirs(tortoise_folder)
             self.run_cmd(f"git clone --branch tortoise-env https://github.com/SECRET-GUEST/tortoise-tts {tortoise_folder}")
-        
+            
             # Installation du package principal à partir de tortoise-tts (inutile vu qu'on fait tout via le requierements.txt)
             #os.chdir(tortoise_folder)
             #os.system("python setup.py install")
@@ -289,7 +289,7 @@ class installer:
             # Installation du sous-package à partir de tortoise-tts/tortoise
             # os.chdir(os.path.join(tortoise_folder, "tortoise"))
             # os.system("pip install -e .")
-            
+
         else:
             self.spinner.loading_stop()
             self.translate.print_message("Le dossier tortoise-tts existe déjà, téléchargement non nécessaire.", progressive_display=True)
@@ -516,6 +516,7 @@ class installer:
 # ____ ____ ____ _  _ ____ ___    _    ____ _  _ _  _ ____ _  _
 # |__/ |  | |    |_/  |___  |     |    |__| |  | |\ | |    |__|
 # |  \ |__| |___ | \_ |___  |     |___ |  | |__| | \| |___ |  |
+
 
 if __name__ == "__main__":
     installer_instance = installer()
