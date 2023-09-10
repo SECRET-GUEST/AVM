@@ -51,7 +51,7 @@ Le projet est actuellement en phase de développement pré-alpha. Nous accueillo
 |---------------------------------|--------------------------------------------------------------|
 | Tortoise (Voice Cloning)        | [GitHub](https://github.com/neonbjb/tortoise-tts)            |
 | RVC (Voice Cloning)             | [GitHub](https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI) |
-| Roberts Slisans | [GitHub](https://github.com/rsxdalv/tts-generation-webui)   |
+| tts generation webui (Voice Cloning) | [GitHub](https://github.com/rsxdalv/tts-generation-webui)   |
 | Base de données d'images Google | [Site Web](https://storage.googleapis.com/openimages/web/download_v7.html) |
 
 <!--
