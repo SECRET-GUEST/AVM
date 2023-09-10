@@ -9,6 +9,7 @@
 ██║  ██║ ╚████╔╝ ██║ ╚═╝ ██║
 ╚═╝  ╚═╝  ╚═══╝  ╚═╝     ╚═╝
 ```
+![Conda](https://img.shields.io/badge/conda-python%203.10.12-green)
 
 
 # AVM - Auto Video Maker
