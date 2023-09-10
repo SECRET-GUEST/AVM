@@ -39,7 +39,9 @@ class starter(PathHandler):
         if os.path.exists(self.scene_file_path):
             self.translate.print_message("Fichier scene.json trouvé", progressive_display=True)
 
-            # Créer une instance de Indexer (Scenes numérotées) et modifie le fichier scene.json
+
+
+            # Créer une instance de Indexer visant à numéroter et traduire les scenes en anglais via google translate
             n_scene_file_path = os.path.join(self.working_folder_path, 'n_scene.json')
             modifier = Indexer(self.scene_file_path, n_scene_file_path)
 
