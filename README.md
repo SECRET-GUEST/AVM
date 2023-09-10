@@ -1,6 +1,15 @@
-# AVM - Auto Video Maker
 
-# 📝 Description
+```
+ █████╗ ██╗   ██╗███╗   ███╗
+██╔══██╗██║   ██║████╗ ████║
+███████║██║   ██║██╔████╔██║
+██╔══██║╚██╗ ██╔╝██║╚██╔╝██║
+██║  ██║ ╚████╔╝ ██║ ╚═╝ ██║
+╚═╝  ╚═╝  ╚═══╝  ╚═╝     ╚═╝
+```
+
+
+# AVM - Auto Video Maker
 
 AVM (Auto Video Maker) est un logiciel innovant, en cours de developpement, fonctionnant sous Windows , exploitant la technologie de l'IA ( Voice Cloning ) et une base de données d'images Google pour générer automatiquement du contenu multimédia, automatisant ainsi le processus de génération de vidéos.
 
