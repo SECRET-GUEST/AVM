@@ -280,6 +280,8 @@ class installer:
         
         if not os.path.exists(tortoise_folder):
             os.makedirs(tortoise_folder)
+
+            self.spinner.loading_stop()
             self.run_cmd(f"git clone --branch tortoise-env https://github.com/SECRET-GUEST/tortoise-tts {tortoise_folder}")
             
             # Installation du package principal à partir de tortoise-tts (inutile vu qu'on fait tout via le requierements.txt)
@@ -402,6 +404,7 @@ class installer:
                     # Suppression du fichier zip après une extraction réussie
                     os.remove(self.rvc_archive_path)
                 else:
+                    self.spinner.loading_stop()
                     raise Exception("L'extraction des fichiers a échoué.")
         
         except Exception as e:
@@ -505,7 +508,6 @@ class installer:
             os.system(f'"{batch_file_path}"')
 
         except Exception as e:
-            self.spinner.loading_stop()
             self.error_message = f"Erreur : {e} L'execution du script a été interrompue"
             self.translate.print_message(self.error_message, progressive_display=True)
             self.log_error("Execution de AVM", -1, None, self.error_message)
