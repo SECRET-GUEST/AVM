@@ -42,7 +42,11 @@ class starter(PathHandler):
             # Créer une instance de Indexer (Scenes numérotées) et modifie le fichier scene.json
             n_scene_file_path = os.path.join(self.working_folder_path, 'n_scene.json')
             modifier = Indexer(self.scene_file_path, n_scene_file_path)
+
+            self.spinner.loading_start()
             modifier.modify_scene()
+            self.spinner.loading_stop()
+            
             self.newJson_next_step_request()
 
 
@@ -134,7 +138,7 @@ class starter(PathHandler):
         
         if response.lower() == 'y':
             # Copiez le dossier "00000_NEW_PROJECT" dans le dossier "storyboard"
-            source_folder = os.path.join(self.root_dir, 'examples', '00000_NEW_PROJECT')
+            source_folder = os.path.join(self.root_dir, 'utils','examples', '00000_NEW_PROJECT')
             dest_folder = os.path.join(self.storyboard_dir, '00000_NEW_PROJECT')
             shutil.copytree(source_folder, dest_folder)
             

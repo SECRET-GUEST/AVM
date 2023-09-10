@@ -12,6 +12,7 @@ import pandas as pd
 from random import choice
 from src.avm.paths import PathHandler
 
+
 #___  ____ ____ ___ ____    ____ _ _  _ ___  ____ ____ 
 #|__] |__| |__/  |  [__     |___ | |\ | |  \ |___ |__/ 
 #|    |  | |  \  |  ___]    |    | | \| |__/ |___ |  \ 
@@ -119,12 +120,12 @@ class videoParts(PathHandler):
         for idx, item in enumerate(n_scene_data):
             self.translate.print_message(f"Traitement de l'élément {idx+1} : {item}")  
 
-            # Trouver toutes les clés de phrases dans l'élément actuel
-            phrase_keys = [key for key in item.keys() if key.startswith("Phrase")]
+            # Trouver toutes les clés de scènes dans l'élément actuel
+            scene_keys = [key for key in item.keys() if key.startswith("Scene")]
 
-            for phrase_key in phrase_keys:
-                scene_keyword = item.get("Scene")
-                part_number = int(phrase_key.replace("Phrase", ""))
+            for scene_key in scene_keys:
+                scene_keyword = item.get(scene_key)
+                part_number = int(scene_key.replace("Scene", ""))
                 part_dir = os.path.join(self.parts_dir, f'part{part_number}')
 
                 if not os.path.exists(part_dir):
@@ -178,10 +179,10 @@ class videoParts(PathHandler):
 
 # Crée un logger pour avoir une trace de l'assemblage
     def log_image_info(self, title, url, part_dir):
-        log_file_path = os.path.join(self.parts_dir, 'asm_logs.txt')
+        parent_dir = os.path.dirname(self.parts_dir)
+        log_file_path = os.path.join(parent_dir, 'asm_logs.txt')
         with open(log_file_path, 'a', encoding='utf-8') as log_file:
             log_file.write(f"Title : {title}\n")
             log_file.write(f"url : {url}\n")
             log_file.write(f"dossier : {os.path.basename(part_dir)}\n\n")
-
 
