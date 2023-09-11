@@ -23,6 +23,7 @@ class PathHandler:
         self.old_dir = os.path.join(self.storyboard_dir, '0ld')
         
         self.n_scene_file_path = os.path.join(self.working_folder_path, 'n_scene.json')
+        self.image_database_csv = os.path.join(self.root_dir, 'assets', 'img', 'img.csv')
 
         self.tortoise_dir = os.path.join(self.root_dir, 'tortoise-tts')
         self.rvc_path = os.path.join(self.root_dir, 'RVC')

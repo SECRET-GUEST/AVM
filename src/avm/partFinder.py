@@ -27,10 +27,6 @@ class videoParts(PathHandler):
 
         self.translate.print_message("Initialisation...", progressive_display=True)
 
-        self.parts_dir = os.path.join(self.working_folder_path, 'parts')
-        self.image_database_csv = os.path.join(self.root_dir, 'assets', 'img', 'img.csv')
-        self.n_scene_file_path = os.path.join(self.working_folder_path, 'n_scene.json')
-
         if not os.path.exists(self.parts_dir):
             os.makedirs(self.parts_dir)
             self.translate.print_message(f"Dossier 'parts' créé à l'emplacement : {self.parts_dir}", progressive_display=True)

@@ -47,7 +47,6 @@ class starter(PathHandler):
             self.newJson_next_step_request()
 
 
-
             # Créer une instance de videoParts et commencer le processus de création de vidéo
             video_maker = videoParts(self.root_dir, self.working_folder_path)
             video_maker.start_video_creation()

@@ -44,23 +44,39 @@ class SendToSpeech(PathHandler):
                     command = f'python "{os.path.join(self.tortoise_dir,"scripts","tortoise_tts.py")}" "{value}" -v william -p ultra_fast --seed -1 --cvvp-amount 0.0 --num-autoregressive-samples 4 --diffusion-iterations 32 --temperature 0.8 --length-penalty 1.0 --repetition-penalty 4.0 --top-p 0.8 --max-mel-tokens 500 --cond-free True --cond-free-k 0 --diffusion-temperature 0.8 -O "{part_dir}" -fn "{key}"'
                     os.system(command)
 
-                    # Appeler la fonction pour supprimer les fichiers combinés
-                    # (Ici, identifiez les fichiers générés et supprimez-en un, puis renommez l'autre)
+        # Après la génération de tous les fichiers, effectuez la suppression et le renommage
+        # Pourquoi apres ? => pourquoi apres...pourquoi ????????
+        self.handle_generated_files()
 
-                    generated_files = [f for f in os.listdir(part_dir) if os.path.isfile(os.path.join(part_dir, f))]
-                    if len(generated_files) >= 2:
-                        for file in generated_files:
-                            if file.endswith("_combined.wav"):
-                                os.remove(os.path.join(part_dir, file))
-                                generated_files.remove(file)  
+    def handle_generated_files(self):
+        parts_dir = os.path.join(self.working_folder_path, 'parts')
+        for root, dirs, files in os.walk(parts_dir):
+            for dir in dirs:
+                part_dir = os.path.join(root, dir)
+                generated_files = [f for f in os.listdir(part_dir) if os.path.isfile(os.path.join(part_dir, f))]
 
-                        # Renommer le fichier restant (qui devrait maintenant être le premier de la liste)
-                        old_file_path = os.path.join(part_dir, generated_files[0])
-                        file_extension = os.path.splitext(generated_files[0])[1]  # Extraire l'extension du fichier
-                        
-                        if file_extension == '.wav':
-                            new_file_path = os.path.join(part_dir, f"phrase{file_extension}")
-                            os.rename(old_file_path, new_file_path)
+                # Identification du fichier à renommer
+                file_to_rename = None
+                for file in generated_files:
+                    if file.endswith(".wav") and not file.endswith("_combined.wav"):
+                        file_to_rename = file
+                        break   
+
+                # Suppression des fichiers combinés
+                for file in generated_files:
+                    if file.endswith("_combined.wav"):
+                        os.remove(os.path.join(part_dir, file)) 
+
+                # Renommage du fichier identifié
+                if file_to_rename:
+                    old_file_path = os.path.join(part_dir, file_to_rename)
+                    file_extension = os.path.splitext(file_to_rename)[1]
+                    new_file_path = os.path.join(part_dir, f"phrase{file_extension}")
+                    os.rename(old_file_path, new_file_path) 
+
+
+
+
 
 
 
