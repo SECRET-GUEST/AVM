@@ -67,20 +67,19 @@ class videoMaker(PathHandler):
 
 
 
-    def execute_process(self):
-        self.translate.print_message("Démarrage du processus global...", progressive_display=True)
+    def execute_process(self, part_folder):
+        self.translate.print_message("Démarrage du processus global...", progressive_display=True)  
 
-        # Étape 1 : Création des vidéos individuelles
+        self.translate.print_message(f"\nTraitement du dossier : {part_folder}", progressive_display=True)  
+
         self.translate.print_message("\nÉtape 1 : Création des vidéos individuelles", progressive_display=True)
-        self.create_individual_video()
+        self.create_individual_video()  
 
-        # Étape 2 : Assemblage des vidéos
         self.translate.print_message("\nÉtape 2 : Assemblage des vidéos", progressive_display=True)
-        self.assemble_videos()
+        self.assemble_videos()  
 
-        # Étape 3 : Assemblage final
         self.translate.print_message("\nÉtape 3 : Assemblage final", progressive_display=True)
-        self.assemble_final()
+        self.assemble_final()   
 
 
 
@@ -89,21 +88,49 @@ class videoMaker(PathHandler):
 
 
     def prompt_user_action(self, missing_audio_folders, missing_image_folders):
-        while True:
-            self.translate.print_message('Voulez-vous ouvrir les dossiers concernés ? (y/n)', progressive_display=True)
-            print()
-            self.translate.print_message('Votre réponse :', progressive_display=True)
-            response = input()
-            if response.lower() in ['y', 'n']:
-                break
-            else:
-                self.translate.print_message('Réponse non valide. Veuillez entrer y ou n.', progressive_display=True)
+        total_missing_folders = list(set(missing_audio_folders + missing_image_folders))
 
-        if response.lower() == 'y':
-            self.open_missing_folders(missing_audio_folders, missing_image_folders)
-        elif response.lower() == 'n':
-            self.translate.print_message('Relancez le programme après avoir ajouté les fichiers manquants.', progressive_display=True)
+        if len(total_missing_folders) > 3:
+            self.translate.print_message(f"Il y a {len(total_missing_folders)} dossiers manquants, ce qui pourrait indiquer un problème avec l'exécution du script.", progressive_display=True)
+            self.translate.print_message("Il est peut-être préférable de redémarrer avec un nouveau dossier pour éviter des problèmes potentiels.", progressive_display=True)
 
+            # Ouvrir le dossier source des parties (parts_dir)
+            os.system(f'start {self.parts_dir}')
+
+            # Demander à l'utilisateur s'il veut relancer le script
+            while True:
+                self.translate.print_message('Voulez-vous relancer le script? (y/n)', progressive_display=True)
+                print()
+                self.translate.print_message('Votre réponse :', progressive_display=True)
+                response = input()
+                if response.lower() in ['y', 'n']:
+                    break
+                else:
+                    self.translate.print_message('Réponse non valide. Veuillez entrer y ou n.', progressive_display=True)
+
+            # Si l'utilisateur choisit de relancer, rappeler la méthode check_parts
+            if response.lower() == 'y':
+                self.check_parts()
+            # Si l'utilisateur choisit de ne pas relancer, fermer le CMD
+            elif response.lower() == 'n':
+                self.translate.print_message('Fermeture du programme.', progressive_display=True)
+                exit()  # Fermer le script/terminal
+
+        else:
+            while True:
+                self.translate.print_message('Voulez-vous ouvrir les dossiers concernés ? (y/n)', progressive_display=True)
+                print()
+                self.translate.print_message('Votre réponse :', progressive_display=True)
+                response = input()
+                if response.lower() in ['y', 'n']:
+                    break
+                else:
+                    self.translate.print_message('Réponse non valide. Veuillez entrer y ou n.', progressive_display=True)
+
+            if response.lower() == 'y':
+                self.open_missing_folders(missing_audio_folders, missing_image_folders)
+            elif response.lower() == 'n':
+                self.translate.print_message('Relancez le programme après avoir ajouté les fichiers manquants.', progressive_display=True)
 
 
     def open_missing_folders(self, missing_audio_folders, missing_image_folders):

@@ -60,11 +60,7 @@ class starter(PathHandler):
 
             # Créer une instance de videoMaker et lancer la méthode create_final_video
             video_maker_instance = videoMaker(self.root_dir, self.working_folder_path)
-            video_maker_instance.create_final_video()
-
-
-
-
+            video_maker_instance.check_parts()
 
 
 
@@ -350,6 +346,7 @@ class starter(PathHandler):
 #|__/ |  | |    |_/  |___  |     |    |__| |  | |\ | |    |__|
 #|  \ |__| |___ | \_ |___  |     |___ |  | |__| | \| |___ |  |
                 
+#ENDING | https://www.youtube.com/watch?v=CgZVrvQZB6U&ab_channel=SECRETGUEST :3
 
 
 if __name__ == "__main__":
