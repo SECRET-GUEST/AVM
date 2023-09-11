@@ -137,7 +137,7 @@ class starter(PathHandler):
         
         if response.lower() == 'y':
             # Copiez le dossier "00000_NEW_PROJECT" dans le dossier "storyboard"
-            source_folder = os.path.join(self.root_dir, 'utils','examples', '00000_NEW_PROJECT')
+            source_folder = os.path.join(self.root_dir,'utils','example','00000_NEW_PROJECT')
             dest_folder = os.path.join(self.storyboard_dir, '00000_NEW_PROJECT')
             shutil.copytree(source_folder, dest_folder)
             
@@ -165,7 +165,7 @@ class starter(PathHandler):
 # Que du textes et des conditions si le fichier scene.json n'est pas présent, entre autres
 
     def handle_example_request(self):
-        self.scene_example = os.path.join(self.root_dir, 'examples','00000_NEW_PROJECT','scene.json')
+        self.scene_example = os.path.join(self.root_dir,'utils', 'example','00000_NEW_PROJECT','scene.json')
         response = input()
         if response.lower() == 'y':
             os.system('cls' if os.name == 'nt' else 'clear')
