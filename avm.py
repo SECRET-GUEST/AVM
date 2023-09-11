@@ -11,8 +11,6 @@ from src.avm.partFinder import videoParts
 from src.avm.videoMaking import videoMaker
 from src.avm.toTortoise import SendToSpeech
 
-from src.animations.loadingSpinner import Spinner     
-        
 
 #_    ____ _  _ ____ ____ _  _ ____ 
 #|    |__| |\ | |    |___ |  | |__/ 
@@ -23,8 +21,6 @@ from src.animations.loadingSpinner import Spinner
 class starter(PathHandler):
     def __init__(self):
         super().__init__()
-
-        self.spinner = Spinner()
 
         self.launchParsing()
 
@@ -38,8 +34,9 @@ class starter(PathHandler):
 
         if os.path.exists(self.scene_file_path):
             self.translate.print_message("Fichier scene.json trouvé", progressive_display=True)
-
-
+            # Créer une instance de SendToSpeech pour générer les fichiers audio avec les noms des phrases numérotées
+            speech_generator = SendToSpeech(self.root_dir, self.working_folder_path)
+            speech_generator.generate_audio_files()
 
             # Créer une instance de Indexer visant à numéroter et traduire les scenes en anglais via google translate
             n_scene_file_path = os.path.join(self.working_folder_path, 'n_scene.json')
@@ -52,21 +49,28 @@ class starter(PathHandler):
             self.newJson_next_step_request()
 
 
+
             # Créer une instance de videoParts et commencer le processus de création de vidéo
             video_maker = videoParts(self.root_dir, self.working_folder_path)
             video_maker.start_video_creation()
 
 
 
-            # Créer une instance de SendToSpeech pour générer les fichiers audio avec les noms des phrases numérotées
-            speech_generator = SendToSpeech(self.root_dir, self.working_folder_path)
-            speech_generator.generate_audio_files()
+
             
 
 
-            # Créer une instance de videoMaker et lancer la méthode create_final_video########################################################################A FINIR !
+            # Créer une instance de videoMaker et lancer la méthode create_final_video
             video_maker_instance = videoMaker(self.root_dir, self.working_folder_path)
             video_maker_instance.create_final_video()
+
+
+
+
+
+
+
+
 
 
 
@@ -168,6 +172,7 @@ class starter(PathHandler):
 # Que du textes et des conditions si le fichier scene.json n'est pas présent, entre autres
 
     def handle_example_request(self):
+        self.scene_example = os.path.join(self.root_dir, 'examples','00000_NEW_PROJECT','scene.json')
         response = input()
         if response.lower() == 'y':
             os.system('cls' if os.name == 'nt' else 'clear')

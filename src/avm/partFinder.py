@@ -4,7 +4,7 @@
 
 
 
-import os, json
+import os, json,shutil,glob
 
 import requests, random
 from shutil import copy
@@ -48,7 +48,8 @@ class videoParts(PathHandler):
         n_scene_data = self.load_n_scene()
         image_data = self.load_image_database()
         self.process_scenes(n_scene_data, image_data)
-
+        self.rename_images() # Renomme les images "2" 
+        self.expression_sorting() 
 
 
 
@@ -87,15 +88,15 @@ class videoParts(PathHandler):
 
     def get_basic_image(self, part_dir, scene_keyword=None):
         self.translate.print_message("Recherche d'une image basique...")
-        basics_dir = os.path.join(self.root_dir, 'assets', 'basics')
-        basic_images = [f for f in os.listdir(basics_dir) if os.path.isfile(os.path.join(basics_dir, f))]
+        
+        basic_images = [f for f in os.listdir(self.basics_dir) if os.path.isfile(os.path.join(self.basics_dir, f))]
 
         if basic_images:
             if self.basic_image_chosen is None:
                 self.basic_image_chosen = random.choice(basic_images)       
 
             chosen_image = self.basic_image_chosen
-            source_path = os.path.join(basics_dir, chosen_image)
+            source_path = os.path.join(self.basics_dir, chosen_image)
             destination_path = os.path.join(part_dir, chosen_image)
             copy(source_path, destination_path)
             self.translate.print_message(f"Image basique choisie et copiée vers : {destination_path}")
@@ -107,6 +108,13 @@ class videoParts(PathHandler):
             return None
 
 
+    def rename_images(self):
+        for part_dir in glob.glob(os.path.join(self.parts_dir, 'part*')):
+            for file_path in glob.glob(os.path.join(part_dir, '*')):
+                file_extension = os.path.splitext(file_path)[1]  
+                new_file_path = os.path.join(part_dir, f"2{file_extension}")  
+                os.rename(file_path, new_file_path)  
+                self.translate.print_message(f"Fichier renommé : {new_file_path}")
 
 
 
@@ -175,6 +183,49 @@ class videoParts(PathHandler):
 
 
 
+    def expression_sorting(self):
+        # Lisez le fichier n_scene.json
+        with open(self.n_scene_file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+
+        # Parcourez chaque élément dans le fichier json
+        for item in data:
+            # Cherchez les clés qui commencent par "CharacterExpression"
+            for key, value in item.items():
+                if key.startswith("CharacterExpression"):
+
+                    # Extrait le numéro de l'expression (par exemple, '1' de 'CharacterExpression1')
+                    expression_number = int(key.replace("CharacterExpression", ""))
+
+                    # Déterminez le dossier de destination (par exemple, 'part1' pour 'CharacterExpression1')
+                    part_dir = os.path.join(self.parts_dir, f'part{expression_number}')
+                    if not os.path.exists(part_dir):
+                        os.makedirs(part_dir)
+
+                    
+                    # Construisez le chemin vers le fichier d'expression dans le dossier assets/Character/expression
+                    expression_file_path = os.path.join(self.expressions, f"{value}.*")
+                    
+                    # Utilisez glob pour trouver le fichier avec l'extension correcte (peut être .gif, .png, .jpg, .mp4, .avi)
+                    found_files = glob.glob(expression_file_path)
+                    
+                    # Si aucun fichier n'est trouvé, utilisez le fichier 'smile' par défaut
+                    if not found_files:
+                        found_files = glob.glob(os.path.join(self.expressions, "smile.*"))
+
+                    # Copiez le fichier trouvé dans le dossier de destination et renommez-le
+                    if found_files:
+                        # Obtenez l'extension du fichier trouvé
+                        extension = os.path.splitext(found_files[0])[1]
+                        
+                        # Construisez le chemin de destination avec le nom "1" et l'extension appropriée
+                        destination_file_path = os.path.join(part_dir, f"1{extension}")
+                        
+                        # Copiez le fichier
+                        shutil.copy(found_files[0], destination_file_path)
+
+
+
 
 
 # Crée un logger pour avoir une trace de l'assemblage
@@ -185,4 +236,5 @@ class videoParts(PathHandler):
             log_file.write(f"Title : {title}\n")
             log_file.write(f"url : {url}\n")
             log_file.write(f"dossier : {os.path.basename(part_dir)}\n\n")
+
 

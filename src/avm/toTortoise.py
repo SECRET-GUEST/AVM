@@ -14,12 +14,11 @@ from src.avm.paths import PathHandler
 
 
 # Génere les fichiers son dans un dossier sentences dans le dossier storyboard
+
+
 class SendToSpeech(PathHandler):
     def __init__(self, root_dir, working_folder_path):
         super().__init__(root_dir, working_folder_path)
-
-
-
 
     def generate_audio_files(self):
         # Lisez le fichier n_scene.json
@@ -45,14 +44,23 @@ class SendToSpeech(PathHandler):
                     command = f'python "{os.path.join(self.tortoise_dir,"scripts","tortoise_tts.py")}" "{value}" -v william -p ultra_fast --seed -1 --cvvp-amount 0.0 --num-autoregressive-samples 4 --diffusion-iterations 32 --temperature 0.8 --length-penalty 1.0 --repetition-penalty 4.0 --top-p 0.8 --max-mel-tokens 500 --cond-free True --cond-free-k 0 --diffusion-temperature 0.8 -O "{part_dir}" -fn "{key}"'
                     os.system(command)
 
-        
-        # Appeler la fonction pour supprimer les fichiers combinés
-        self.remove_combined_files(os.path.join(self.working_folder_path, 'parts'))
+                    # Appeler la fonction pour supprimer les fichiers combinés
+                    # (Ici, identifiez les fichiers générés et supprimez-en un, puis renommez l'autre)
+
+                    generated_files = [f for f in os.listdir(part_dir) if os.path.isfile(os.path.join(part_dir, f))]
+                    if len(generated_files) >= 2:
+                        for file in generated_files:
+                            if file.endswith("_combined.wav"):
+                                os.remove(os.path.join(part_dir, file))
+                                generated_files.remove(file)  
+
+                        # Renommer le fichier restant (qui devrait maintenant être le premier de la liste)
+                        old_file_path = os.path.join(part_dir, generated_files[0])
+                        file_extension = os.path.splitext(generated_files[0])[1]  # Extraire l'extension du fichier
+                        
+                        if file_extension == '.wav':
+                            new_file_path = os.path.join(part_dir, f"phrase{file_extension}")
+                            os.rename(old_file_path, new_file_path)
 
 
 
-    def remove_combined_files(self, directory):
-        for root, _, files in os.walk(directory):
-            for file in files:
-                if file.endswith("_combined.wav"):
-                    os.remove(os.path.join(root, file))
