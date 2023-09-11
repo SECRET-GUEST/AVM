@@ -6,6 +6,7 @@
 
 import os, random,subprocess,shutil
 from src.avm.paths import PathHandler
+import multiprocessing
 
 from moviepy.editor import VideoFileClip, AudioFileClip, CompositeVideoClip, ImageClip, concatenate_videoclips
 
@@ -21,23 +22,31 @@ from moviepy.editor import VideoFileClip, AudioFileClip, CompositeVideoClip, Ima
 class videoMaker(PathHandler):
     def __init__(self, root_dir, working_folder_path):
         super().__init__(root_dir, working_folder_path)
+
+        # Compte le nombre de coeur du processeur et en laisse 2 de libres
+        # Mais exploite le reste à fond pour générer les video rapidement
+        self.num_cores = max(1, multiprocessing.cpu_count() - 2) 
+
         self.translate.print_message("Initialisation du module videoMaker...", progressive_display=True)
+
+
 
     def check_parts(self):
         missing_audio_folders = []
         missing_image_folders = []
 
         for part_folder in os.listdir(self.parts_dir):
-            part_path = os.path.join(self.parts_dir, part_folder)
-            if os.path.isdir(part_path):
-                files_in_part = os.listdir(part_path)
-                audio_files = [file for file in files_in_part if file.endswith(('.wav', '.mp3'))]
-                image_files = [file for file in files_in_part if file.endswith(('.png', '.jpg', '.jpeg', '.mp4', '.avi','.mov', '.gif'))]
+            if part_folder.startswith('part') and part_folder[4:].isdigit():
+                part_path = os.path.join(self.parts_dir, part_folder)
+                if os.path.isdir(part_path):
+                    files_in_part = os.listdir(part_path)
+                    audio_files = [file for file in files_in_part if file.endswith(('.wav', '.mp3'))]
+                    image_files = [file for file in files_in_part if file.endswith(('.png', '.jpg', '.jpeg', '.mp4', '.avi','.mov', '.gif'))]
 
-                if not audio_files:
-                    missing_audio_folders.append(part_folder)
-                if not image_files:
-                    missing_image_folders.append(part_folder)
+                    if not audio_files:
+                        missing_audio_folders.append(part_folder)
+                    if not image_files:
+                        missing_image_folders.append(part_folder)
 
         if missing_audio_folders or missing_image_folders:
             self.translate.print_message("Le programme ne peut pas s'exécuter car il manque des fichiers dans les dossiers suivants :", progressive_display=True)
@@ -60,8 +69,8 @@ class videoMaker(PathHandler):
 
         else:
             self.translate.print_message("Tous les dossiers sont complets. Prêt pour l'assemblage de la vidéo.", progressive_display=True)
-            for part_folder in sorted(os.listdir(self.parts_dir), key=lambda x: int(x.replace('part', ''))):
-                self.execute_process(part_folder)   
+            for part_folder in sorted(filter(lambda x: x.startswith('part') and x[4:].isdigit(), os.listdir(self.parts_dir)), key=lambda x: int(x[4:])):
+                self.execute_process(part_folder)
 
 
 
@@ -78,7 +87,10 @@ class videoMaker(PathHandler):
         self.translate.print_message("\nÉtape 2 : Assemblage des vidéos", progressive_display=True)
         self.assemble_videos()  
 
-        self.translate.print_message("\nÉtape 3 : Assemblage final", progressive_display=True)
+        self.translate.print_message("\n Étape 3 : Envois vers RVC pour un meilleur rendu audio", progressive_display=True)
+        self.toRVC()
+
+        self.translate.print_message("\nÉtape 4 : Assemblage final", progressive_display=True)
         self.assemble_final()   
 
 
@@ -145,26 +157,42 @@ class videoMaker(PathHandler):
 
 
     def resizer(self, clip, max_height=1080, max_width=1920):
-
-#        Cette fonction redimensionne un clip (vidéo, image, ou GIF) sans étirement,
-#        en s'assurant que la hauteur n'excède pas 1080px et la largeur n'excède pas 1920px.
+        # Cette fonction redimensionne un clip (vidéo, image, ou GIF) sans étirement,
+        # en s'assurant que la hauteur n'excède pas 1080px et la largeur n'excède pas 1920px.   
 
         clip_aspect_ratio = clip.w / clip.h
-        new_width = min(clip.w, max_width)
-        new_height = min(clip.h, max_height)
+        new_width = clip.w
+        new_height = clip.h 
 
-        # Si le redimensionnement pour atteindre la largeur maximale fait dépasser la hauteur maximale,
-        # alors nous ajustons la largeur pour maintenir l'aspect ratio.
-        if new_width / clip_aspect_ratio > max_height:
-            new_width = max_height * clip_aspect_ratio
+        if clip.h < 900:  # Augmente la taille si la hauteur est inférieure à 900px
+            scale_factor = 900 / clip.h
+            new_height = 900
+            new_width = clip.w * scale_factor   
 
-        # De même, si le redimensionnement pour atteindre la hauteur maximale fait dépasser la largeur maximale,
-        # alors nous ajustons la hauteur pour maintenir l'aspect ratio.
-        if new_height * clip_aspect_ratio > max_width:
-            new_height = max_width / clip_aspect_ratio
+        # Ajustez la taille si elle dépasse les limites max
+        if new_width > max_width or new_height > max_height:
+            new_width = min(new_width, max_width)
+            new_height = min(new_height, max_height)
 
-        return clip.resize(newsize=(int(new_width), int(new_height)))   
+            # Si le redimensionnement pour atteindre la largeur maximale fait dépasser la hauteur maximale,
+            # alors nous ajustons la largeur pour maintenir l'aspect ratio.
+            if new_width / clip_aspect_ratio > max_height:
+                new_width = max_height * clip_aspect_ratio
 
+            # De même, si le redimensionnement pour atteindre la hauteur maximale fait dépasser la largeur maximale,
+            # alors nous ajustons la hauteur pour maintenir l'aspect ratio.
+            if new_height * clip_aspect_ratio > max_width:
+                new_height = max_width / clip_aspect_ratio  
+
+        # Centre le clip
+        padding_y = (max_height - new_height) // 2
+        padding_x = (max_width - new_width) // 2
+        clip = clip.resize(newsize=(int(new_width), int(new_height)))
+        clip = clip.set_position(("center", "center"))  # Centre le clip à l'écran  
+
+        return clip.resize(newsize=(int(new_width), int(new_height))).set_position('center')
+
+    
 
 
 
@@ -173,7 +201,7 @@ class videoMaker(PathHandler):
 
     def create_individual_video(self):
         self.translate.print_message("Création des vidéos individuelles en cours...", progressive_display=True)
-        self.spinner.loading_start()
+        # self.spinner.loading_start()
 
         # Obtenez un fichier image aléatoire du dossier basics comme calque de fond (layer 0)
         background_image = random.choice([os.path.join(self.basics_dir, f) for f in os.listdir(self.basics_dir) if os.path.isfile(os.path.join(self.basics_dir, f))])
@@ -181,9 +209,9 @@ class videoMaker(PathHandler):
 
         # Parcourez chaque dossier dans self.parts_dir
         for part_folder in sorted(os.listdir(self.parts_dir), key=lambda x: int(x.replace('part', ''))):
-            self.spinner.loading_stop()
+            # self.spinner.loading_stop()
             self.translate.print_message(f"Traitement de : {part_folder}", progressive_display=False)
-            self.spinner.loading_start()    
+            # self.spinner.loading_start()    
 
             part_folder_path = os.path.join(self.parts_dir, part_folder)    
 
@@ -192,35 +220,35 @@ class videoMaker(PathHandler):
             duration = audio_clip.duration  
 
             background_clip = background_clip.set_duration(duration)
-            clips = [background_clip]   
+            clips = [background_clip]  # Background clip added first
 
-            layer_files = sorted([f for f in os.listdir(part_folder_path) if os.path.isfile(os.path.join(part_folder_path, f)) and f.split('.')[0].isdigit()], key=lambda x: int(x.split('.')[0]))  
+            layer_files = sorted([f for f in os.listdir(part_folder_path) if os.path.isfile(os.path.join(part_folder_path, f)) and f.split('.')[0].isdigit()], key=lambda x: -int(x.split('.')[0]))  # Sorting in reverse order for z-index
 
             for layer_file in layer_files:
-                self.spinner.loading_stop()
+                # self.spinner.loading_stop()
                 self.translate.print_message(f"Traitement de la couche : {layer_file}", progressive_display=False)
-                self.spinner.loading_start()
+                # self.spinner.loading_start()
 
                 layer_file_path = os.path.join(part_folder_path, layer_file)
                 layer_clip = VideoFileClip(layer_file_path) if layer_file_path.lower().endswith(('mp4', 'avi')) else ImageClip(layer_file_path) 
 
-                layer_clip = self.resizer(layer_clip, height=1080)
+                layer_clip = self.resizer(layer_clip, max_height=1080)
                 layer_clip = layer_clip.set_duration(duration)
-                clips.append(layer_clip)    
+                clips.append(layer_clip)  # Clips added based on the file name ordering    
 
-            self.spinner.loading_stop()
+            # self.spinner.loading_stop()
             self.translate.print_message("Assemblage des clips et écriture de la vidéo finale...", progressive_display=True)
-            self.spinner.loading_start()    
+            # self.spinner.loading_start()    
 
             final_video = CompositeVideoClip(clips)
             final_video = final_video.set_audio(audio_clip) 
 
             output_video_path = os.path.join(part_folder_path, f'{part_folder}.mp4')
-            final_video.write_videofile(output_video_path, codec="libx264", audio_codec="pcm_s16le", bitrate="5000k", audio_bitrate="1536k", threads=4) 
 
-        self.spinner.loading_stop()
-        self.translate.print_message("Création des vidéos individuelles terminée.", progressive_display=True)   
+            final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac", bitrate="5000k", audio_bitrate="1536k", threads=self.num_cores, fps=24)        
 
+        # self.spinner.loading_stop()
+        self.translate.print_message("Création des vidéos individuelles terminée.", progressive_display=True)
 
 
 
@@ -228,7 +256,7 @@ class videoMaker(PathHandler):
 
     def assemble_videos(self):
         self.translate.print_message("Début de l'assemblage des vidéos...", progressive_display=True)
-        self.spinner.loading_start()    
+        # # self.spinner.loading_start()    
 
         # Parcours tous les dossiers partX et récupérer les chemins des fichiers outputX.mp4
         video_paths = []
@@ -238,36 +266,38 @@ class videoMaker(PathHandler):
             if os.path.exists(video_path):
                 video_paths.append(video_path)
 
-                self.spinner.loading_stop()
+                # self.spinner.loading_stop()
                 self.translate.print_message(f"Traitement de : {part_folder}", progressive_display=False)
-                self.spinner.loading_start()    
+                # # self.spinner.loading_start()    
 
-        self.spinner.loading_stop()
+        # self.spinner.loading_stop()
         self.translate.print_message("Fusion des vidéos en une seule...", progressive_display=True)
-        self.spinner.loading_start()    
+        # # self.spinner.loading_start()    
 
         # Fusionne tous les outputX.mp4 en une grande vidéo
         video_clips = [VideoFileClip(vp) for vp in video_paths]
         final_video_clip = concatenate_videoclips(video_clips, method="compose")    
 
-        self.spinner.loading_stop()
+        # self.spinner.loading_stop()
         self.translate.print_message("Écriture de la vidéo dans un fichier nosound.mp4...", progressive_display=True)
-        self.spinner.loading_start()    
+        # # self.spinner.loading_start()    
 
         # Écrit la vidéo dans un fichier nosound.mp4
         nosound_path = os.path.join(self.parts_dir, 'nosound.mp4')
-        final_video_clip.write_videofile(nosound_path, codec="libx264", audio_codec="pcm_s16le", bitrate="5000k", audio_bitrate="1536k", threads=4) 
+        final_video_clip.write_videofile(nosound_path, codec="libx264", bitrate="5000k", threads=self.num_cores)
 
-        self.spinner.loading_stop()
+        # self.spinner.loading_stop()
         self.translate.print_message("Extraction de l'audio de nosound.mp4 et écriture dans un fichier sound.wav...", progressive_display=True)
-        self.spinner.loading_start()    
+        # # self.spinner.loading_start()    
 
         # Extrait l'audio de nosound.mp4 et l'écrire dans un fichier sound.wav (et non sound.mp4)
         audio_clip = final_video_clip.audio
         sound_path = os.path.join(self.parts_dir, 'sound.wav')
-        audio_clip.write_audiofile(sound_path, codec="pcm_s16le")   
+        audio_clip.fps = 44100  # Définissez la fréquence d'échantillonnage à une valeur standard
+        audio_clip.write_audiofile(sound_path, codec="aac")
+   
 
-        self.spinner.loading_stop()
+        # self.spinner.loading_stop()
         self.translate.print_message("Assemblage des vidéos terminé.", progressive_display=True)    
 
 
@@ -305,15 +335,21 @@ class videoMaker(PathHandler):
 
         
         except Exception as e:
-            self.spinner.loading_stop()
+            # self.spinner.loading_stop()
             self.translate.print_message(f"RVC n'a pas fonctionné. Voici l'erreur rencontrée : {e}", progressive_display=True)
-            self.translate.print_message("Il est conseillé d'essayer de faire fonctionner le processus manuellement en utilisant la commande suivante dans votre terminal. Si vous avez des difficultés à comprendre comment cela fonctionne, un tutoriel est disponible. Voulez-vous voir le tutoriel? (y/n)", progressive_display=True)
+            self.translate.print_message("Il est conseillé d'essayer de faire fonctionner le processus manuellement en utilisant la commande suivante dans votre terminal.", progressive_display=True)
+            self.translate.print_message("Si vous avez des difficultés à comprendre comment cela fonctionne, un tutoriel est disponible.", progressive_display=True)
+            print()
+            self.translate.print_message("Voulez-vous voir le tutoriel? (y/n)", progressive_display=True)
 
             response = input()
             if response.lower() == 'y':
                 tutorial_text = [
+                    "Commande à taper :"
                     'python commander.py 0 "C:\\Chemin\\vers\\le\\fichier\\vocal.wav" "C:\\Chemin\\vers\\le\\fichier\\logs\\MODEL_v2.index" harvest "C:\\Chemin\\vers\\le\\fichier\\sortie.wav" "C:\\Chemin\\vers\\le\\modèle\\model.pth" 0.6 cuda:0 True 5 44100 0.5 0.33',
+                    
                     "voici l'explication :",
+
                     '1. `python commander.py`: Cette commande sert à exécuter votre script Python.',
                     '2. `f0up_key` : Une clé pour spécifier la mise à jour de la fréquence fondamentale (F0). (ex : 0)',
                     '3. `input_path` : Le chemin du fichier audio d\'entrée que vous voulez traiter. (ex : "C:\\Chemin\\vers\\le\\fichier\\vocal.wav")',
@@ -328,19 +364,25 @@ class videoMaker(PathHandler):
                     '12. `resample_sr` : Le taux d\'échantillonnage pour le rééchantillonnage, une valeur de type int. (ex : 44100)',
                     '13. `rms_mix_rate` : Un taux utilisé pour ajuster le mixage RMS pendant le traitement, une valeur de type float. (ex : 0.5)',
                     '14. `protect` : Une valeur utilisée pour ajuster un paramètre de protection pendant le traitement, une valeur de type float. (ex : 0.33)',
+
                     "En cas d'incompréhension, veuillez contacter le support ici : https://github.com/SECRET-GUEST/AVM/issues (Faites Ctrl + clic sur le lien pour l'ouvrir, puisque l'affichage est dans le CMD)"
                 ]
-                self.spinner.loading_stop()
-                for line in tutorial_text:
-                    self.translate.print_message(line, progressive_display=True)
 
+                desktop_path = os.path.join(os.path.expanduser('~'), 'Desktop')
+                tutorial_file_path = os.path.join(desktop_path, 'tuto_rvc.txt')
+
+                with open(tutorial_file_path, 'w') as tutorial_file:
+                    for line in tutorial_text:
+                        tutorial_file.write(line + '\n')
+
+                os.startfile(tutorial_file_path)
 
 
 
 
     def assemble_final(self):
         self.translate.print_message("Rendu final en cours de traitement...", progressive_display=True)
-        self.spinner.loading_start()
+        # self.spinner.loading_start()
 
         # Fusionne "nosound.mp4" et "soundHD.wav"
         nosound_path = os.path.join(self.parts_dir, 'nosound.mp4')
@@ -357,8 +399,8 @@ class videoMaker(PathHandler):
         # Enregistre la vidéo finale avec un nom basé sur le nom du dossier parts_dir
         final_video_name = os.path.basename(os.path.normpath(self.parts_dir)) + '.mp4'
         final_video_path = os.path.join(self.parts_dir, final_video_name)
-        final_video_clip.write_videofile(final_video_path, codec="libx264", audio_codec="aac", bitrate="5000k", audio_bitrate="384k", threads=4)
-        
+        final_video_clip.write_videofile(final_video_path, codec="libx264", audio_codec="aac", bitrate="10000k", audio_bitrate="512k", threads=self.num_cores)
+
         # Déplace tout le dossier parts_dir vers le dossier 0ld
         old_parts_path = os.path.join(self.old_dir, os.path.basename(os.path.normpath(self.parts_dir)))
         shutil.move(self.parts_dir, old_parts_path)
@@ -366,7 +408,7 @@ class videoMaker(PathHandler):
         # Recherche la vidéo dans le dossier 0ld et la jouer avec le lecteur vidéo par défaut
         final_old_video_path = os.path.join(old_parts_path, final_video_name)
 
-        self.spinner.loading_stop()
+        # self.spinner.loading_stop()
         self.translate.print_message("Lecture du rendu final et fermeture du programme", progressive_display=True)
 
         os.startfile(final_old_video_path)
