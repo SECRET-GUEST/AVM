@@ -34,9 +34,7 @@ class starter(PathHandler):
 
         if os.path.exists(self.scene_file_path):
             self.translate.print_message("Fichier scene.json trouvé", progressive_display=True)
-            # Créer une instance de SendToSpeech pour générer les fichiers audio avec les noms des phrases numérotées
-            speech_generator = SendToSpeech(self.root_dir, self.working_folder_path)
-            speech_generator.generate_audio_files()
+
 
             # Créer une instance de Indexer visant à numéroter et traduire les scenes en anglais via google translate
             n_scene_file_path = os.path.join(self.working_folder_path, 'n_scene.json')
@@ -55,9 +53,9 @@ class starter(PathHandler):
             video_maker.start_video_creation()
 
 
-
-
-            
+            # Créer une instance de SendToSpeech pour générer les fichiers audio avec les noms des phrases numérotées
+            speech_generator = SendToSpeech(self.root_dir, self.working_folder_path)
+            speech_generator.generate_audio_files()
 
 
             # Créer une instance de videoMaker et lancer la méthode create_final_video
@@ -352,7 +350,6 @@ class starter(PathHandler):
 #|__/ |  | |    |_/  |___  |     |    |__| |  | |\ | |    |__|
 #|  \ |__| |___ | \_ |___  |     |___ |  | |__| | \| |___ |  |
                 
-#ENDING | https://www.youtube.com/watch?v=CgZVrvQZB6U&ab_channel=SECRETGUEST :3
 
 
 if __name__ == "__main__":
