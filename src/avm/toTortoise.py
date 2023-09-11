@@ -45,12 +45,12 @@ class SendToSpeech(PathHandler):
                     os.system(command)
 
         # Après la génération de tous les fichiers, effectuez la suppression et le renommage
-        # Pourquoi apres ? => pourquoi apres...pourquoi ????????
+        # Pourquoi apres ? => pourquoi apres...???????? pourquoi ????????
         self.handle_generated_files()
 
     def handle_generated_files(self):
         parts_dir = os.path.join(self.working_folder_path, 'parts')
-        for root, dirs, files in os.walk(parts_dir):
+        for root, dirs, _ in os.walk(parts_dir):
             for dir in dirs:
                 part_dir = os.path.join(root, dir)
                 generated_files = [f for f in os.listdir(part_dir) if os.path.isfile(os.path.join(part_dir, f))]
