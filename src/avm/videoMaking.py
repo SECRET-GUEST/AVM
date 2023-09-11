@@ -201,7 +201,7 @@ class videoMaker(PathHandler):
 
     def create_individual_video(self):
         self.translate.print_message("Création des vidéos individuelles en cours...", progressive_display=True)
-        # self.spinner.loading_start()
+        
 
         # Obtenez un fichier image aléatoire du dossier basics comme calque de fond (layer 0)
         background_image = random.choice([os.path.join(self.basics_dir, f) for f in os.listdir(self.basics_dir) if os.path.isfile(os.path.join(self.basics_dir, f))])
@@ -209,10 +209,9 @@ class videoMaker(PathHandler):
 
         # Parcourez chaque dossier dans self.parts_dir
         for part_folder in sorted(os.listdir(self.parts_dir), key=lambda x: int(x.replace('part', ''))):
-            # self.spinner.loading_stop()
+            
             self.translate.print_message(f"Traitement de : {part_folder}", progressive_display=False)
-            # self.spinner.loading_start()    
-
+                
             part_folder_path = os.path.join(self.parts_dir, part_folder)    
 
             audio_path = os.path.join(part_folder_path, 'phrase.wav')
@@ -220,34 +219,27 @@ class videoMaker(PathHandler):
             duration = audio_clip.duration  
 
             background_clip = background_clip.set_duration(duration)
-            clips = [background_clip]  # Background clip added first
+            clips = [background_clip]  # Background ajouté en prems
 
-            layer_files = sorted([f for f in os.listdir(part_folder_path) if os.path.isfile(os.path.join(part_folder_path, f)) and f.split('.')[0].isdigit()], key=lambda x: -int(x.split('.')[0]))  # Sorting in reverse order for z-index
+            layer_files = sorted([f for f in os.listdir(part_folder_path) if os.path.isfile(os.path.join(part_folder_path, f)) and f.split('.')[0].isdigit()], key=lambda x: -int(x.split('.')[0]))  # on tri en reverse pour z-index
 
             for layer_file in layer_files:
-                # self.spinner.loading_stop()
+                
                 self.translate.print_message(f"Traitement de la couche : {layer_file}", progressive_display=False)
-                # self.spinner.loading_start()
-
+                
                 layer_file_path = os.path.join(part_folder_path, layer_file)
                 layer_clip = VideoFileClip(layer_file_path) if layer_file_path.lower().endswith(('mp4', 'avi')) else ImageClip(layer_file_path) 
-
                 layer_clip = self.resizer(layer_clip, max_height=1080)
                 layer_clip = layer_clip.set_duration(duration)
-                clips.append(layer_clip)  # Clips added based on the file name ordering    
-
-            # self.spinner.loading_stop()
+                clips.append(layer_clip)  # Clips ajoutés en fonction de leur nom   
+            
             self.translate.print_message("Assemblage des clips et écriture de la vidéo finale...", progressive_display=True)
-            # self.spinner.loading_start()    
-
+                
             final_video = CompositeVideoClip(clips)
             final_video = final_video.set_audio(audio_clip) 
-
             output_video_path = os.path.join(part_folder_path, f'{part_folder}.mp4')
+            final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac", bitrate="5000k", audio_bitrate="1536k", threads=self.num_cores, fps=30)        
 
-            final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac", bitrate="5000k", audio_bitrate="1536k", threads=self.num_cores, fps=24)        
-
-        # self.spinner.loading_stop()
         self.translate.print_message("Création des vidéos individuelles terminée.", progressive_display=True)
 
 
@@ -256,7 +248,7 @@ class videoMaker(PathHandler):
 
     def assemble_videos(self):
         self.translate.print_message("Début de l'assemblage des vidéos...", progressive_display=True)
-        # # self.spinner.loading_start()    
+        #     
 
         # Parcours tous les dossiers partX et récupérer les chemins des fichiers outputX.mp4
         video_paths = []
@@ -266,38 +258,33 @@ class videoMaker(PathHandler):
             if os.path.exists(video_path):
                 video_paths.append(video_path)
 
-                # self.spinner.loading_stop()
+                
                 self.translate.print_message(f"Traitement de : {part_folder}", progressive_display=False)
-                # # self.spinner.loading_start()    
 
-        # self.spinner.loading_stop()
         self.translate.print_message("Fusion des vidéos en une seule...", progressive_display=True)
-        # # self.spinner.loading_start()    
 
         # Fusionne tous les outputX.mp4 en une grande vidéo
         video_clips = [VideoFileClip(vp) for vp in video_paths]
         final_video_clip = concatenate_videoclips(video_clips, method="compose")    
-
-        # self.spinner.loading_stop()
-        self.translate.print_message("Écriture de la vidéo dans un fichier nosound.mp4...", progressive_display=True)
-        # # self.spinner.loading_start()    
+        
+        self.translate.print_message("Écriture de la vidéo dans un fichier nosound.mp4...", progressive_display=True)  
 
         # Écrit la vidéo dans un fichier nosound.mp4
         nosound_path = os.path.join(self.parts_dir, 'nosound.mp4')
         final_video_clip.write_videofile(nosound_path, codec="libx264", bitrate="5000k", threads=self.num_cores)
 
-        # self.spinner.loading_stop()
+        
         self.translate.print_message("Extraction de l'audio de nosound.mp4 et écriture dans un fichier sound.wav...", progressive_display=True)
-        # # self.spinner.loading_start()    
-
         # Extrait l'audio de nosound.mp4 et l'écrire dans un fichier sound.wav (et non sound.mp4)
         audio_clip = final_video_clip.audio
         sound_path = os.path.join(self.parts_dir, 'sound.wav')
         audio_clip.fps = 44100  # Définissez la fréquence d'échantillonnage à une valeur standard
-        audio_clip.write_audiofile(sound_path, codec="aac")
+        audio_clip.write_audiofile(sound_path, codec="pcm_s16le")
+
+
    
 
-        # self.spinner.loading_stop()
+        
         self.translate.print_message("Assemblage des vidéos terminé.", progressive_display=True)    
 
 
@@ -335,7 +322,7 @@ class videoMaker(PathHandler):
 
         
         except Exception as e:
-            # self.spinner.loading_stop()
+            
             self.translate.print_message(f"RVC n'a pas fonctionné. Voici l'erreur rencontrée : {e}", progressive_display=True)
             self.translate.print_message("Il est conseillé d'essayer de faire fonctionner le processus manuellement en utilisant la commande suivante dans votre terminal.", progressive_display=True)
             self.translate.print_message("Si vous avez des difficultés à comprendre comment cela fonctionne, un tutoriel est disponible.", progressive_display=True)
@@ -382,7 +369,7 @@ class videoMaker(PathHandler):
 
     def assemble_final(self):
         self.translate.print_message("Rendu final en cours de traitement...", progressive_display=True)
-        # self.spinner.loading_start()
+        
 
         # Fusionne "nosound.mp4" et "soundHD.wav"
         nosound_path = os.path.join(self.parts_dir, 'nosound.mp4')
@@ -393,7 +380,6 @@ class videoMaker(PathHandler):
         
         video_clip = VideoFileClip(nosound_path)
         audio_clip = AudioFileClip(soundHD_path)
-        
         final_video_clip = video_clip.set_audio(audio_clip)
 
         # Enregistre la vidéo finale avec un nom basé sur le nom du dossier parts_dir
@@ -401,14 +387,11 @@ class videoMaker(PathHandler):
         final_video_path = os.path.join(self.parts_dir, final_video_name)
         final_video_clip.write_videofile(final_video_path, codec="libx264", audio_codec="aac", bitrate="10000k", audio_bitrate="512k", threads=self.num_cores)
 
-        # Déplace tout le dossier parts_dir vers le dossier 0ld
-        old_parts_path = os.path.join(self.old_dir, os.path.basename(os.path.normpath(self.parts_dir)))
-        shutil.move(self.parts_dir, old_parts_path)
-        
-        # Recherche la vidéo dans le dossier 0ld et la jouer avec le lecteur vidéo par défaut
-        final_old_video_path = os.path.join(old_parts_path, final_video_name)
+        # Affichez un message indiquant que la lecture du rendu final est en cours et que le programme va se fermer
+        self.translate.print_message("Lecture du rendu final et fermeture du programme ...", progressive_display=True)      
 
-        # self.spinner.loading_stop()
-        self.translate.print_message("Lecture du rendu final et fermeture du programme", progressive_display=True)
+        # Ouvrez le dossier contenant la vidéo finale
+        os.startfile(os.path.dirname(final_video_path))     
 
-        os.startfile(final_old_video_path)
+        # Jouez la vidéo finale avec le lecteur vidéo par défaut
+        os.startfile(final_video_path)      
