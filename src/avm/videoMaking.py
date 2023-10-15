@@ -198,11 +198,9 @@ class videoMaker(PathHandler):
 
 
 
-
     def create_individual_video(self):
         self.translate.print_message("Création des vidéos individuelles en cours...", progressive_display=True)
         
-
         # Obtenez un fichier image aléatoire du dossier basics comme calque de fond (layer 0)
         background_image = random.choice([os.path.join(self.basics_dir, f) for f in os.listdir(self.basics_dir) if os.path.isfile(os.path.join(self.basics_dir, f))])
         background_clip = ImageClip(background_image).set_duration(0)   
@@ -228,7 +226,7 @@ class videoMaker(PathHandler):
                 self.translate.print_message(f"Traitement de la couche : {layer_file}", progressive_display=False)
                 
                 layer_file_path = os.path.join(part_folder_path, layer_file)
-                layer_clip = VideoFileClip(layer_file_path) if layer_file_path.lower().endswith(('mp4', 'avi')) else ImageClip(layer_file_path) 
+                layer_clip = VideoFileClip(layer_file_path) if layer_file_path.lower().endswith(('webm', 'avi')) else ImageClip(layer_file_path) 
                 layer_clip = self.resizer(layer_clip, max_height=1080)
                 layer_clip = layer_clip.set_duration(duration)
                 clips.append(layer_clip)  # Clips ajoutés en fonction de leur nom   
@@ -237,28 +235,25 @@ class videoMaker(PathHandler):
                 
             final_video = CompositeVideoClip(clips)
             final_video = final_video.set_audio(audio_clip) 
-            output_video_path = os.path.join(part_folder_path, f'{part_folder}.mp4')
-            final_video.write_videofile(output_video_path, codec="libx264", audio_codec="aac", bitrate="5000k", audio_bitrate="1536k", threads=self.num_cores, fps=30)        
+            output_video_path = os.path.join(part_folder_path, f'{part_folder}.webm')
+            final_video.write_videofile(output_video_path, codec="libvpx-vp9", audio_codec="libopus", bitrate="5000k", audio_bitrate="192k", threads=self.num_cores, fps=30)        
 
         self.translate.print_message("Création des vidéos individuelles terminée.", progressive_display=True)
 
 
-
-
+  
 
     def assemble_videos(self):
         self.translate.print_message("Début de l'assemblage des vidéos...", progressive_display=True)
-        #     
 
         # Parcours tous les dossiers partX et récupérer les chemins des fichiers outputX.mp4
         video_paths = []
         for part_folder in sorted(os.listdir(self.parts_dir), key=lambda x: int(x.replace('part', ''))):
             part_folder_path = os.path.join(self.parts_dir, part_folder)
-            video_path = os.path.join(part_folder_path, f'{part_folder}.mp4')
+            video_path = os.path.join(part_folder_path, f'{part_folder}.webm')
             if os.path.exists(video_path):
                 video_paths.append(video_path)
 
-                
                 self.translate.print_message(f"Traitement de : {part_folder}", progressive_display=False)
 
         self.translate.print_message("Fusion des vidéos en une seule...", progressive_display=True)
@@ -267,15 +262,14 @@ class videoMaker(PathHandler):
         video_clips = [VideoFileClip(vp) for vp in video_paths]
         final_video_clip = concatenate_videoclips(video_clips, method="compose")    
         
-        self.translate.print_message("Écriture de la vidéo dans un fichier nosound.mp4...", progressive_display=True)  
+        self.translate.print_message("Écriture de la vidéo dans un fichier nosound.webm...", progressive_display=True)  
 
-        # Écrit la vidéo dans un fichier nosound.mp4
-        nosound_path = os.path.join(self.parts_dir, 'nosound.mp4')
-        final_video_clip.write_videofile(nosound_path, codec="libx264", bitrate="5000k", threads=self.num_cores)
+        # Écrit la vidéo dans un fichier nosound.webm
+        nosound_path = os.path.join(self.parts_dir, 'nosound.webm')
+        final_video_clip.write_videofile(nosound_path, codec="libvpx-vp9", bitrate="5000k", threads=self.num_cores)
 
-        
-        self.translate.print_message("Extraction de l'audio de nosound.mp4 et écriture dans un fichier sound.wav...", progressive_display=True)
-        # Extrait l'audio de nosound.mp4 et l'écrire dans un fichier sound.wav (et non sound.mp4)
+        self.translate.print_message("Extraction de l'audio de nosound.webm et écriture dans un fichier sound.wav...", progressive_display=True)
+        # Extrait l'audio de nosound.webm et l'écrire dans un fichier sound.wav (et non sound.webm)
         audio_clip = final_video_clip.audio
         sound_path = os.path.join(self.parts_dir, 'sound.wav')
         audio_clip.fps = 44100  # Définissez la fréquence d'échantillonnage à une valeur standard
@@ -366,26 +360,24 @@ class videoMaker(PathHandler):
 
 
 
-
     def assemble_final(self):
         self.translate.print_message("Rendu final en cours de traitement...", progressive_display=True)
         
-
         # Fusionne "nosound.mp4" et "soundHD.wav"
         nosound_path = os.path.join(self.parts_dir, 'nosound.mp4')
         soundHD_path = os.path.join(self.parts_dir, 'soundHD.wav')
         
         if not os.path.exists(soundHD_path):
-            soundHD_path = os.path.join(self.parts_dir, 'sound.wav') # Si soundHD.wav n'existe pas, utilisez sound.wav
+            soundHD_path = os.path.join(self.parts_dir, 'sound.wav')  # Si soundHD.wav n'existe pas, utilisez sound.wav
         
         video_clip = VideoFileClip(nosound_path)
         audio_clip = AudioFileClip(soundHD_path)
         final_video_clip = video_clip.set_audio(audio_clip)
 
         # Enregistre la vidéo finale avec un nom basé sur le nom du dossier parts_dir
-        final_video_name = os.path.basename(os.path.normpath(self.parts_dir)) + '.mp4'
+        final_video_name = os.path.basename(os.path.normpath(self.parts_dir)) + '.webm'
         final_video_path = os.path.join(self.parts_dir, final_video_name)
-        final_video_clip.write_videofile(final_video_path, codec="libx264", audio_codec="aac", bitrate="10000k", audio_bitrate="512k", threads=self.num_cores)
+        final_video_clip.write_videofile(final_video_path, codec="libvpx-vp9", audio_codec="libopus", bitrate="10000k", audio_bitrate="192k", threads=self.num_cores)
 
         # Affichez un message indiquant que la lecture du rendu final est en cours et que le programme va se fermer
         self.translate.print_message("Lecture du rendu final et fermeture du programme ...", progressive_display=True)      
@@ -394,4 +386,4 @@ class videoMaker(PathHandler):
         os.startfile(os.path.dirname(final_video_path))     
 
         # Jouez la vidéo finale avec le lecteur vidéo par défaut
-        os.startfile(final_video_path)      
+        os.startfile(final_video_path)
