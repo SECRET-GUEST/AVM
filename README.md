@@ -65,4 +65,5 @@ Merci de soutenir et de contribuer à ce projet en développement.
 
 ## 📜 Licence
 
-Ce projet est distribué sous la licence GNU Affero General Public License v3.0. Voir le fichier [**LICENSE**](https://github.com/SECRET-GUEST/AVM/blob/main/LICENSE) pour plus de détails.
+This software is released under the [GNU General Public License v3.0 (GPL-3.0)](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see the `LICENSE` file for more information.
+
